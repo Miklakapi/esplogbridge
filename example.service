@@ -1,0 +1,13 @@
+[Unit]
+Description=esplogbridge - ESPHome UDP logs to Grafana Loki
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/esplogbridge --config /etc/esplogbridge.yaml
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
