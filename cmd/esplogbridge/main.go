@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/Miklakapi/esplogbridge/internal/cli"
+	"github.com/Miklakapi/esplogbridge/internal/config"
 	"github.com/Miklakapi/esplogbridge/internal/version"
 )
 
@@ -23,6 +24,11 @@ func main() {
 	if flags.Version {
 		fmt.Println(version.VersionString())
 		return
+	}
+
+	_, err = config.Load(flags.ConfigPath)
+	if err != nil {
+		printErrorAndExit(err, 2)
 	}
 }
 
