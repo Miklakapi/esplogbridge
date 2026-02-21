@@ -1,0 +1,48 @@
+# esplogbridge example configuration
+#
+# Notes:
+# - This app is purpose-built for ESPHome UDP logs → Grafana Loki.
+# - Devices are accepted ONLY if their source IP is present in `devices`.
+#   Packets from unknown IPs are dropped (lightweight safety filter).
+# - Timestamps are taken from server receive time (UTC) and included in the log line.
+# - Queue is bounded; when full, the oldest entries are dropped (drop-oldest).
+# - Batching is used to reduce Loki request overhead.
+
+# UDP listener address (host:port).
+listen: ":5514"
+
+# Input handling settings.
+input:
+  udp:
+    # Maximum number of events buffered between UDP receive and Loki sender.
+    # Bounded memory. When full, oldest entries are dropped.
+    queue_size: 100
+
+# Loki output configuration.
+loki:
+  # Loki Push API endpoint
+  url: "http://127.0.0.1:3100/loki/api/v1/push"
+
+  # HTTP request timeout (Go duration format)
+  timeout: 2s
+
+  # Optional HTTP headers
+  # headers:
+  #   Authorization: "Bearer LOKI_TOKEN"
+
+  # Stream labels (static)
+  labels:
+    # This becomes the Loki stream label `job`
+    job: "esphome"
+
+  # Batching settings (bounded).
+  # A batch is flushed when max_items is reached OR max_wait expires.
+  batch:
+    max_items: 50
+    max_wait: 1s
+
+# Device mapping: source IP → device_id label sent to Loki.
+# Packets from IPs not listed here are dropped.
+devices:
+  "192.168.1.55": "esp-kitchen"
+  "192.168.1.56": "esp-bedroom"
