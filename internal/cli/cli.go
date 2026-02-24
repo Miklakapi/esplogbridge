@@ -14,7 +14,7 @@ type CLI struct {
 func ParseFlags() (CLI, error) {
 	var cfg CLI
 
-	flag.StringVar(&cfg.ConfigPath, "config", "", "Path to YAML config file (e.g. /etc/gometrum.yaml)")
+	flag.StringVar(&cfg.ConfigPath, "config", "", "Path to YAML config file (e.g. /etc/esplogbridge.yaml)")
 	flag.StringVar(&cfg.ConfigPath, "c", "", "Shorthand for --config")
 
 	flag.BoolVar(&cfg.Version, "version", false, "Show version and exit")
@@ -23,7 +23,7 @@ func ParseFlags() (CLI, error) {
 	flag.Parse()
 
 	if strings.TrimSpace(cfg.ConfigPath) == "" {
-		cfg.ConfigPath = "./gometrum.yaml"
+		cfg.ConfigPath = "./esplogbridge.yaml"
 	}
 
 	if err := validateFlags(cfg); err != nil {
