@@ -52,6 +52,7 @@ func runUDPReceiver(ctx context.Context, cfg config.Config, out chan Event) erro
 
 		clean := stripSyslogPrefix(packet)
 		clean = normalizeWhitespace(clean)
+		clean = trimEspHomePrefix(clean)
 		if clean == "" {
 			continue
 		}
@@ -129,4 +130,12 @@ func normalizeWhitespace(s string) string {
 		return ""
 	}
 	return strings.Join(fields, " ")
+}
+
+func trimEspHomePrefix(s string) string {
+	idx := strings.IndexByte(s, '[')
+	if idx <= 0 {
+		return s
+	}
+	return strings.TrimSpace(s[idx:])
 }
