@@ -32,11 +32,7 @@ func main() {
 		printErrorAndExit(err, 2)
 	}
 
-	app, err := bridge.New(cfg)
-	if err != nil {
-		printErrorAndExit(err, 1)
-	}
-
+	app := bridge.New(cfg)
 	if err := app.Run(ctx); err != nil {
 		printErrorAndExit(err, 1)
 	}
