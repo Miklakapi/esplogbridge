@@ -23,27 +23,20 @@ func runUDPReceiver(ctx context.Context, cfg config.Config, out chan Event) erro
 	}
 	defer conn.Close()
 
+	go func() {
+		<-ctx.Done()
+		_ = conn.Close()
+	}()
+
 	buf := make([]byte, 65535)
 
 	for {
-		_ = conn.SetReadDeadline(time.Now().Add(1 * time.Second))
-
 		n, addr, err := conn.ReadFrom(buf)
 		if err != nil {
-			if ne, ok := err.(net.Error); ok && ne.Timeout() {
-				select {
-				case <-ctx.Done():
-					return nil
-				default:
-					continue
-				}
+			if ctx.Err() != nil {
+				return nil
 			}
 			return fmt.Errorf("read: %w", err)
-		}
-
-		packet := strings.TrimSpace(string(buf[:n]))
-		if packet == "" {
-			continue
 		}
 
 		ipStr := remoteIPString(addr)
@@ -52,13 +45,16 @@ func runUDPReceiver(ctx context.Context, cfg config.Config, out chan Event) erro
 			continue
 		}
 
+		packet := string(buf[:n])
+		if packet == "" {
+			continue
+		}
+
 		clean := stripSyslogPrefix(packet)
 		clean = normalizeWhitespace(clean)
 		if clean == "" {
 			continue
 		}
-
-		fmt.Println(clean)
 
 		ev := Event{
 			Timestamp: time.Now().UTC(),
